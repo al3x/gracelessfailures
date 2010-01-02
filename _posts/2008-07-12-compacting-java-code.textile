@@ -1,0 +1,53 @@
+---
+layout: post
+title: "Compacting Java Code, and Style"
+author: Robey Pointer
+---
+
+h1. {{ page.title }}
+
+An unnamed library included this joyous piece of sample code (please ignore the gratuitous style violations -- they were clearly C++ coders):
+
+{% highlight java %}
+public String[] getPrefixes(String prefix) {
+  Vector<string> v = new Vector<string>();
+  for(String s : map.keySet())
+  {
+    if(s.startsWith(prefix) && !s.equals(prefix))
+    {
+        v.add(s);
+    }
+  }
+
+  if(v.size() > 0)
+  {
+    return (String[])v.toArray(new String[0]);
+  }
+  else
+  {
+    return null;
+  }
+}
+{% endhighlight %}
+
+I thought, "This is a place where Scala can shine. Let's try to remove the 99% of this code that's just boilerplate." Here's what I came up with:
+
+{% highlight scala %}
+def getPrefixes(prefix: String): Array[String] = {
+  val keyList = (for (val key <- map.keys if key.startsWith(prefix) && (key != prefix)) yield key).toList
+  if (keyList.size > 0) keyList.toArray else null
+}
+{% endhighlight %}
+
+But wait. That's really terse, but doesn't look awesome. The first line is too long to completely absorb when skimming, and the last line is questionable style -- I wanted a Ruby-style <tt>keyList.toArray unless keyList.empty?</tt> but Scala uses inline if/else for the <tt>a ? b : c</tt> operator so it looks weird. Second try, let's use matching instead:
+
+{% highlight scala %}
+def getPrefixes(prefix: String): Array[String] = {
+  (for (val key <- map.keys if key.startsWith(prefix) && (key != prefix)) yield key).toList match {
+    case Nil => null
+    case list => list.toArray
+  }
+}
+{% endhighlight %}
+
+That works. The <tt>(...).toList</tt> construct still bothers me a bit though. Is there some better way to do that?

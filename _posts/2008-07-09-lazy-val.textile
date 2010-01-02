@@ -1,0 +1,10 @@
+---
+layout: post
+title: "lazy val"
+---
+
+h1. {{ page.title }}
+
+If you want a field or local variable to be initialized only when it's required (that is, accessed/used for the first time), you want a <tt>lazy val</tt>.
+
+"Details and debate":http://www.nabble.com/Question-on-lazy-val-td17678892.html on this feature's implementation can be found on the Scala User mailing list, but perhaps a better resource is "this post":https://lampblogs.epfl.ch/b2evolution/blogs/index.php?blog=7&title=lazy_values_in_scala&more=1&c=1&tb=1&pb=1 that preceded the feature's release from a developer at "EPFL":http://www.epfl.ch/index.en.html (Scala's home).

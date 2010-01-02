@@ -1,0 +1,15 @@
+---
+layout: post
+title: "Renaming Imports"
+author: Steve Jenson
+---
+
+h1. {{ page.title }}
+
+One useful thing if you're spending a lot of time interfacing with Java from Scala is renaming imports.
+
+I use Scala ArrayLists and java.util.ArrayList a lot. Here's an easy way to not get confused:
+
+{% highlight scala %}
+import java.util.{ArrayList => JArrayList}
+{% endhighlight %}

@@ -1,0 +1,15 @@
+---
+layout: post
+title: "Scala For Rubyists"
+---
+
+h1. {{ page.title }}
+
+Over at "Coderspiel":http://technically.us/, n8han has implemented "_why's":http://whytheluckystiff.net/ semi-canoncial Ruby tutorial adventure game Dwemthy's Array "in Scala":http://technically.us/code/x/dwemthy_s-arrayhhhhhlist-in-scally.
+
+I like this for two reasons:
+
+# There aren't enough non-trivial side-by-side Ruby vs Scala examples for Rubyists like myself to learn from.
+# The author has a number in his name, and that's how you know he's a righteous dude.
+
+Also, for gems like this: "And finally, code is data or whatever."

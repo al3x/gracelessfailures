@@ -1,0 +1,22 @@
+---
+layout: post
+title: "Class File '...' is broken"
+author: John Kalucki
+---
+
+h1. {{ page.title }}
+
+Nope. Nothing is broken. Just missing. Scala 2.7.1 emits this slightly misleading error message when a dependency is missing. I suppose this then "breaks" the dependent class, but only from the point-of-view of the compiler, not from the point-of-view of the developer.
+
+For example, I'm using net.spy.memcached, but I only placed memcached-2.1.jar in my classpath, and not the sub-dependency spy-2.4.jar. The error returned is:
+
+<pre>
+error: error while loading MemcachedClient, class file '../third-party/java/memcached-2.1.jar(net/spy/memcached/MemcachedClient.class)' is broken
+(class net.spy.SpyThread not found.)
+SomeClass.scala:13: error: net.spy.memcached.MemcachedClient does not have a constructor
+val c = new MemcachedClient(AddrUtil.getAddresses(h, p));
+</pre>
+
+The actual problem is described sotto voce: "(class net.spy.SpyThread not found.)". But, instead I foolishly focused on "class file '...' is broken". Broken is much stronger than not found, and these jars were new to my repository. So, I went around verifying the integrity of the .jar file, missing the main point of the message.
+
+This has been a common theme in my experience thus far: Scala compiler errors need a bit more honing. They sometimes lead my Java and gcc eyes astray. I have to slow down more and re-read the compiler output.

@@ -1,0 +1,88 @@
+---
+layout: post
+title: "Testing in Scala Using a Java Tool"
+author: Tom Adams
+---
+
+h1. {{ page.title }}
+
+This is my first post on Graceless Failures, I plan to write here about my continued experiences learning Scala developing a BDD framework, a build tool and a grid-based gene sequencing tool. Hopefully I'll be able to post a few good code snippets, feel free to comment on whether you'd like to see more or less code.
+
+So here goes...
+
+Scala, like a lot of other languages these days, ships with a unit testing framework - SUnit - built in. Many other Scala specific "testing" frameworks have sprung up in recent times that contain similar or vastly different feature sets to the traditional xUnit tools. These include "Reductio":http://reductiotest.org/, "ScalaCheck":http://code.google.com/p/scalacheck/, "Specs":http://code.google.com/p/specs/, "ScalaTest":http://www.artima.com/scalatest/, and SUnit (built into the Scala distribution).
+
+And as Scala is "just Java" you can also use Java frameworks such as JUnit and TestNG. Having only used Reductio, I can't vouch for any others, though ScalaTest is getting good airplay on Artima and Specs seems to have the Scala BDD mindshare.
+
+These tools can be loosely categorized as traditional unit testing tools, ala xUnit, or automated specification testing tools, ala "QuickCheck":http://www.cs.chalmers.se/~rjmh/QuickCheck/. Reductio and ScalaCheck are incarnations of automated specification testing, while Specs, ScalaTest and SUnit are more your traditional xUnit frameworks.
+
+However, I'm not to write about any of these frameworks, instead, I'm going to write about "Instinct":http://instinct.googlecode.com/, a Java BDD framework that I've been developing for around 18 months, and for which I've recently started to add specific support for Scala into the codebase. Good fodder for blog posts!
+
+The process of getting Instinct running Scala code proved quite trivial, most issues related to typical Ant shenanigans and issues with Scala annotation syntax. The good news is that as advertised, Scala specification classes compiled and were run using the standard Java runners without modification. I was pleasantly surprised by this, it's some of the first (semi-complicated) Java integration I've done with Scala, the only real deal killer I've encountered so far is that class level variables in Scala need to be initialized, something Instinct does automatically for Java specs (there's probably a way around this, but I couldn't find it in the two minutes I spent on it).
+
+There's plenty of literature on BDD out there so I won't speak about it here; let's get to some code. Here's the canonical BDD example, the stack (sans imports and copious line wrapping to satisfy blogger):
+
+{% highlight scala %}
+final class AnEmptyStackSpeccedUsingScala {
+    @Stub var element: Int = 1
+
+    @Specification {
+      val expectedException = classOf[RuntimeException],
+      val withMessage = "Cannot pop an empty stack"}
+    def failsWhenPopped {
+        EmptyStack.pop
+    }
+
+    @Specification {
+      val expectedException = classOf[RuntimeException],
+      val withMessage = "Nothing to see"}
+    def failsWhenPeeked {
+        EmptyStack.peek
+    }
+
+    @Specification
+    def returnsNoneWhenSafelyPopped {
+        expect.that(EmptyStack.safePop).isEqualTo(None)
+    }
+
+    @Specification
+    def isNoLongerEmptyAfterPush {
+        val stack = EmptyStack.push(element)
+        expect.that(stack.peek).isEqualTo(element)
+    }
+}
+{% endhighlight %}
+
+And here's the corresponding code it's speccing out:
+
+{% highlight scala %}
+sealed trait Stack[+A] {
+    def push[B >: A](element: B): Stack[B]
+    def pop: Stack[A]
+    def safePop: Option[Stack[A]]
+    def peek: A
+    def safePeek: Option[A]
+}
+
+final case object EmptyStack extends Stack[Nothing] {
+    override def push[B](element: B) =
+        NonEmptyStack(element, this)
+    override def pop = error("Cannot pop an empty stack")
+    override def safePop = None
+    override def peek = error("Nothing to see")
+    override def safePeek = None
+}
+
+final case class NonEmptyStack[+A](
+        element: A, elements: Stack[A])
+        extends Stack[A] {
+    override def push[B >: A](element: B) =
+        NonEmptyStack(element, this)
+    override def pop = elements
+    override def safePop = Some(elements)
+    override def peek = element
+    override def safePeek = Some(element)
+}
+{% endhighlight %}
+
+The first thing to notice about the specification is that it's too verbose, we can and should do better with Scala. Some things to focus on are implicit conversions, which would give us RSpec like state expectations, and removing some of the cruft on annotations. Instinct will let us use naming conventions (ala JUnit, etc.) here, but at the expense of flexibility, but we can do better. One approach is the one Specs takes, using closures, another approach, backing off a little, would be closer to RSpec. I'm not sure what is the best option here, hopefully I'll be able to share my learning here, comments are most welcome.

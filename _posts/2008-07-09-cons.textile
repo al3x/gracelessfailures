@@ -1,0 +1,8 @@
+---
+layout: post
+title: ":: == cons"
+---
+
+h1. {{ page.title }}
+
+The <tt>::</tt> operator is more or less equivalent to "cons":http://en.wikipedia.org/wiki/Cons in Lisp, ML, and similar languages. When you're pattern matching, it extracts. When you're declaring or assigning variables (particularly Lists), it concatenates.

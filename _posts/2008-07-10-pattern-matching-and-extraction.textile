@@ -1,0 +1,29 @@
+---
+layout: post
+title: "Pattern Matching and Extraction"
+author: David Pollak
+---
+
+h1. {{ page.title }}
+
+Pattern matching is cool:
+
+{% highlight scala %}
+val lst = List(1,2,3,4)
+
+lst match {
+  case 1 :: _ => // match anything with the first element as 1
+}
+
+lst match {
+  case _ :: 2 :: _ => // match anything with the second element as 2
+}
+{% endhighlight %}
+
+But it gets fun, because you can "extract" values (put them out) and match at the same time:
+
+{% highlight scala %}
+lst match {
+  case first :: 2 :: _ => // matches if the second item in the list is 2 and assigns the first element to "first"
+}
+{% endhighlight %}

@@ -1,0 +1,25 @@
+---
+layout: post
+title: "Scala Classloader Hijinx"
+author: John Kalucki
+---
+
+h1. {{ page.title }}
+
+Today I found that Scala's classloader is a bit of a comprise. The details are murky, but JDK libraries that subsequently load non-JDK libraries can have troubles. My guess is that there is some conflict between the bootloader and the regular classloader.
+
+In my case, I have a custom java.util.logging.Formatter class that I have used for years of pawing through gigabytes of server logs and test output. I got one previous coworker hooked enough that he extended this Formatter with a few options, and then wrote a filter to color code and correlate threads.
+
+When moving over to Scala, I couldn't get the scala(1) invoked JVM to load my Java class. I was always left with the ugly and nearly unusable SimpleFormatter output. From verdant wilds of a rain forest island, David suggested that I invoke the whole app from java(1) rather than scala(1), and include the scala jar in the classpath. Works just fine.
+
+My tcsh wrapper went from:
+
+{% highlight tcsh %}
+setenv JAVA_OPTS "-ea -esa -Djava.util.logging.config.file=trace.properties" scala -classpath classes EntryClassName
+{% endhighlight %}
+
+to:
+
+{% highlight tcsh %}
+java -ea -esa -classpath /Users/john/scala/lib/scala-library.jar:classes -Djava.util.logging.config.file=trace.properties EntryClassName
+{% endhighlight %}
