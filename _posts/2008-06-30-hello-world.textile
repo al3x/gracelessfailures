@@ -1,0 +1,16 @@
+---
+layout: post
+title: "Hello World"
+---
+
+h1. {{ page.title }}
+
+Welcome to Graceless Failures, a group blog of tips, tricks, missteps, and minor revelations on the path to Scala wisdom.
+
+Several of us engineers at "Twitter, Inc.":http;//twitter.com/ are learning Scala as the language in which to develop new components for our system. At some point we might talk about why we chose Scala on the Twitter Development Blog, but this particular blog isn't an official Twitter project and that isn't our goal here.
+
+Mostly, I thought it would be a good idea to capture the little things you learn about a language but are likely to forget. I figured we could record our own discoveries about Scala, share them within our team, and help others out in the process.
+
+We don't intend to "compete" with the fine blogs out there that delve into advanced Scala usage (several of which are linked to in a sidebar on our domain). Rather, we want to provide a space for those realizations that are too big not to write down but too small to warrant an article-length effort.
+
+If you're learning Scala and would like to write about the process, give us a shout. Otherwise, just soak up the knowledge and have fun with Scala!

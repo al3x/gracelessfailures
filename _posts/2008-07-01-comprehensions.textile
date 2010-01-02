@@ -1,0 +1,8 @@
+---
+layout: post
+title: "map/flatMap/foreach -> for comprehension"
+---
+
+h1. {{ page.title }}
+
+Scala has some nifty syntactic sugar that makes operations on collections prettier.
