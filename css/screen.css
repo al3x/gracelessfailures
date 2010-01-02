@@ -68,6 +68,11 @@ li { margin-bottom: 4px; }
 
 p, ul, ol { margin-bottom: 18px; }
 
+pre {
+  font-family: 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Consolas', 'Inconsolata', monospace;
+  margin-bottom: 16px;
+}
+
 ul, ol {
   margin-left: 2em;
 }
