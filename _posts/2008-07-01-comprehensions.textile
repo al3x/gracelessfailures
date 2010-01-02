@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "map/flatMap/foreach -> for comprehension"
+author: David Pollak
 ---
 
 h1. {{ page.title }}
