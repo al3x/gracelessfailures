@@ -1,0 +1,28 @@
+---
+layout: nil
+---
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+ <title>Graceless Failures</title>
+ <link href="http://gracelessfailures.com/atom.xml" rel="self"/>
+ <link href="http://gracelessfailures.com/"/>
+ <updated>{{ site.time | date_to_xmlschema }}</updated>
+ <id>http://gracelessfailures.com/</id>
+ <author>
+   <name>Alex Payne</name>
+   <email>al3x+gracelessfailures@al3x.net</email>
+ </author>
+ {% for post in site.posts limit:10 %}
+ <entry>
+   <title>{{ post.title }}</title>
+   <link href="http://gracelessfailures.com{{ post.url }}"/>
+   <updated>{{ post.date | date_to_xmlschema }}</updated>
+   <id>http://gracelessfailures.com{{ post.id }}</id>
+   <content type="html">{{ post.content | xml_escape }}</content>
+   <author>
+     <name>Alex Payne</name>
+     <uri>http://al3x.net/</uri>
+   </author>
+ </entry>
+ {% endfor %}
+</feed>
