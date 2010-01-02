@@ -6,7 +6,13 @@ title: Recent Posts
   <div class="post">
   {{ post.content }}
   <p class="signoff">
-    &sect; <a href="{{ post.url }}">{{ post.date | date: "%b %d, %Y" }}</a>
+    &mdash;
+    {% if post.author %}
+      <em>{{ post.author }}</em>,
+    {% else %}
+      <em>Alex Payne</em>,
+    {% endif %}
+    <a href="{{ post.url }}">{{ post.date | date: "%b %d, %Y" }}</a>
   </p>
   </div>
 {% endfor %}
