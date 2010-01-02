@@ -1,0 +1,47 @@
+---
+layout: post
+title: "Singletons and Companion Objects"
+---
+
+h1. {{ page.title }}
+
+Scala's syntax for singleton objects and the methods thereupon is one my favorite first-blush features of the language:
+
+{% highlight scala %}
+object MySingletonObject {
+  def singletonMethod() = println("What a fancy method, and so singular!")
+}
+{% endhighlight %}
+
+So now if you want that supremely valuable console message, just call MySingletonObject.singletonMethod().
+
+Say, though, that you want the equivalent to this bit of Ruby code:
+
+{% highlight ruby %}
+class MyClass
+  def say_hi
+    print "hi"
+  end
+
+  def self.say_yo_from_the_class
+    print "yo"
+  end
+end
+
+>> m = MyClass.new
+=> #
+>> m.say_hi
+hi=> nil
+>> MyClass.say_yo_from_the_class
+yo=> nil
+{% endhighlight %}
+
+You've got MyClass defined in your Scala code, but how to get that badass say_yo_from_the_class class method? Like this, kid:
+
+{% highlight scala %}
+object MyClass {
+  def sayYoFromTheClass() = println("yo")
+}
+{% endhighlight %}
+
+The above singleton is now the companion object of MyClass. Companion objects have to be defined the same source file as the class they accompany. Other than that, pretty intuitive.
