@@ -4,6 +4,12 @@ layout: default
 <article class="post">
 {{ content }}
 <time class="signoff" datetime="{{ page.date | date: "%Y-%m-%d" }}">
-  &sect; {{ page.date | date: "%b %d, %Y" }}
+  &mdash;
+  {% if post.author %}
+    <em>{{ post.author }}</em>,
+  {% else %}
+    <em>Alex Payne</em>,
+  {% endif %}
+  {{ page.date | date: "%b %d, %Y" }}
 </time>
 </article>

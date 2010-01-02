@@ -64,13 +64,17 @@ h3 {
   line-height: 22px;
 }
 
-li { margin-bottom: 4px; }
+li {
+  font-size: 14px;
+  margin-bottom: 4px;
+}
 
 p, ul, ol { margin-bottom: 18px; }
 
 pre {
   font-family: 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Consolas', 'Inconsolata', monospace;
   margin-bottom: 16px;
+  overflow: auto;
 }
 
 ul, ol {
@@ -96,7 +100,7 @@ header {
   line-height: 21px;
 }
 
-.post .signoff {
+.post .signoff, time .signoff {
   font-size: 13pt;
   font-style: italic;
   text-align: right;
