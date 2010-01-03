@@ -72,9 +72,11 @@ li {
 p, ul, ol { margin-bottom: 18px; }
 
 pre {
+  border: 1px solid #dedede;
   font-family: 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Consolas', 'Inconsolata', monospace;
   margin-bottom: 16px;
   overflow: auto;
+  padding: 4px;
 }
 
 ul, ol {
