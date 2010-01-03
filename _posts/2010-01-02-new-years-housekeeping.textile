@@ -1,0 +1,12 @@
+---
+layout: post
+title: "New Year's Housekeeping"
+---
+
+h1. {{ page.title }}
+
+The migration from Blogger that I did a while back wasn't without its warts. For one, it lost per-post authorship attribution. There were also sundry formatting errors, and a number of older posts that get the benefit of syntax highlighting for inline code.
+
+I've moved this site over to "GitHub Pages":http://github.com/al3x/gracelessfailures/tree/gh-pages and corrected the above issues. The layout and styling has also been tweaked a bit.
+
+An advantage of moving to GitHub: if you'd like to contribute a post, simply fork the repository and add a post to the <tt>_posts</tt> directory. Follow the convention of adding your name to the <tt>author</tt> key of the YAML frontmatter. Send me a pull request, and I'll post your contribution.
