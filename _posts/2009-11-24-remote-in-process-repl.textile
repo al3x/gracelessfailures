@@ -13,7 +13,7 @@ I looked into other strategies. The one that seemed to make the most sense was t
 
 As it turns out, we can, in a portable way, and in less than 100 lines of code. Check it out:
 
-<script src="http://gist.github.com/241575.js?file=RemoteDebug.scala"></script>u
+<script src="http://gist.github.com/241575.js?file=RemoteDebug.scala"></script>
 
 To make use of this in your Scala project, just create an instance of RemoteDebugServer and hand it a port number. Be sure, of course, that you're not exposing that port to the outside world. What happens inside the firewall stays inside the firewall.
 
