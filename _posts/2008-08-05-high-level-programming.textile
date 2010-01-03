@@ -1,0 +1,15 @@
+---
+layout: post
+title: "Introduction to High-Level Programming With Scala"
+author: Tom Adams
+---
+
+h1. {{ page.title }}
+
+Tony Morris gave a nice introduction to Scala talk at the local Java User's Group last week:
+
+bq. In this presentation, Tony introduces some of the essential tenets of functional programming and why they are important. He draws on the existing Java knowledge of the audience to relate foreign concepts. Tony then goes on to introduce the Scala programming language to the audience.
+
+Full details are available: "Introduction to High-Level Programming With Scala":http://wiki.workingmouse.com/index.php/Introduction_to_High-level_Programming_with_Scala (duration 106 mins). Oh, and that's me who keeps interrupting in the background...
+
+Disclaimer: Tony and I work together at Workingmouse.

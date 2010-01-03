@@ -1,0 +1,28 @@
+---
+layout: post
+title: "NumberFormatException"
+author: Robey Pointer
+---
+
+h1. {{ page.title }}
+
+{% highlight scala %}
+scala> "true".toBoolean
+res1: Boolean = true
+{% endhighlight %}
+
+That's pretty cool. Does it work for "false" too?
+
+{% highlight scala %}
+scala> "false".toBoolean
+res1: Boolean = false
+{% endhighlight %}
+
+Yeah! Awesome! How does it handle other values, I wonder?
+
+{% highlight scala %}
+scala> "1".toBoolean
+java.lang.NumberFormatException: For input string: "1"
+{% endhighlight %}
+
+... Err, what?

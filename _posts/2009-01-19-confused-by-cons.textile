@@ -1,0 +1,45 @@
+---
+layout: post
+title: "Confused by cons"
+author: David Vydra
+---
+
+h1. {{ page.title }}
+
+While learning how to use lists:
+
+{% highlight scala %}
+val oneTwo = List(1, 2)
+val threeFour = List(3, 4)
+val oneTwoThreeFour = oneTwo :: threeFour //forgot one ":", I really meant to ":::" (concatenate)
+val filteredList = oneTwoThreeFour.filter(n => n > 1)
+{% endhighlight %}
+
+scalac informed me:
+
+<pre>
+Error:Error:line (16)error: value > is not a member of scala.this.Any
+val l2 = oneTwoThreeFour.filter(n => n > 1)
+</pre>
+
+Commenting out the offending line and replacing it with
+
+{% highlight scala %}
+println("oneTwoThreeFour " + oneTwoThreeFour)
+{% endhighlight %}
+
+yields
+
+{% highlight scala %}
+oneTwoThreeFour List(List(1, 2), 3, 4)
+{% endhighlight %}
+
+which clearly shows that the first element is not an Int.
+
+However, the following line compiles:
+
+{% highlight scala %}
+val filteredList = oneTwoThreeFour.filter(n => n == 1)
+{% endhighlight %}
+
+probably because <tt>==</tt> is defined for scala.this.Any.

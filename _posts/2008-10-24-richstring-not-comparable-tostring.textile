@@ -1,0 +1,62 @@
+---
+layout: post
+title: "Scala RichString is not Comparable to String"
+author: John Kalucki
+---
+
+h1. {{ page.title }}
+
+A sadness:
+
+{% highlight scala %}
+val r: scala.runtime.RichString = "1"
+val s: String = "1"
+
+if (r == s) {
+  println("ok1")
+} else {
+  println("sad1")
+}
+
+if (s == r) {
+  println("ok2")
+} else {
+  println("sad2")
+}
+
+if (s.equals(r)) {
+  println("ok3")
+} else {
+  println("sad3")
+}
+
+if (r.equals(s)) {
+  println("ok4")
+} else {
+  println("sad4")
+}
+{% endhighlight %}
+
+Will print:
+
+<pre>
+sad1
+sad2
+sad3
+sad4
+</pre>
+
+This isn't as sad as:
+
+<pre>
+sad1
+ok2
+sad3
+ok4
+</pre>
+
+which would precipitate Robey's "ultimate sadness".
+
+I got into this state by adding a <tt>.drop</tt> to a String, and chaos resulted. The details are tangentially described "here":http://www.nabble.com/String-and-RichString-equality-td14888607.html.
+
+Still, this is another thing to keep in your head when coding along. I suppose it's best to coerce RichStrings back to Strings immediately, so as not to allow RichStrings to propagate too far.

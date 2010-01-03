@@ -1,0 +1,64 @@
+---
+layout: post
+title: "Building Thrift Dependencies In Scala with sbt"
+---
+
+h1. {{ page.title }}
+
+So you're using the fantastic "simple-build-tool":http://code.google.com/p/simple-build-tool/ (sbt) to build your Scala project. Not only that, but you're using "Thrift":http://incubator.apache.org/thrift/ for cross-language, high-performance RPC support. Nothing but the latest and greatest for you, eh?
+
+Out of the box, though, sbt knows nothing about Thrift. Fortunately, it's easy to wire that up. You just want to throw something like this in your build file (you know, the one in project/build that you created while following along with the superb "documentation":http://code.google.com/p/simple-build-tool/wiki/DocumentationHome that sbt offers?):
+
+{% highlight scala %}
+lazy val thrift = task {
+  val javaDirectoryPath = "src/main/java"
+  val rubyDirectoryPath = "src/main/ruby"
+  val thriftFile = "src/main/thrift/YourThriftDealie.thrift"
+
+  "thrift --gen java -o %s %s".format(javaDirectoryPath, thriftFile) ! log
+  "thrift --gen rb -o %s %s".format(rubyDirectoryPath, thriftFile) ! log
+  None
+} describedAs("Build Thrift stuff.")
+
+override def compileAction = super.compileAction dependsOn(thrift)
+override def compileOrder = CompileOrder.JavaThenScala
+{% endhighlight %}
+
+Now, keep in mind that this just handles a single Thrift definition, and only produces generated code in Java and Ruby. But, at least it's enough to give you the groundwork to do fancier things, like generate code in umpteen different languages for a hojillion different Thrift definitions.
+
+Note that the CompileOrder.JavaThenScala assignment is critical; without it, your Scala code won't know about anything that Thrift generated, because _it won't have been built_.
+
+So far, we've had great success with sbt. We took a project with 500+ lines of Ant and Ivy XML muck down to one tidy pure Scala build file that's not even 80 lines log, including comments. It's magic! Except that it isn't, because if something is puzzling you can just go and read the sbt source code, which is all clever, idiomatic Scala.
+
+_Update, November 28 2009_: sbt's author, "Mark Harrah":http://github.com/harrah, was nice enough to email us some pointers.
+
+<blockquote>
+* I recommend always using absolute paths when calling out to an external program. If you ever use multi-projects, for example, the current working directory is always that of the root project and can be surprising when in subprojects.
+* There is an execTask that fails if the forked process fails. (Right now, your thrift action will always succeed).
+* I use src_managed for generated sources to keep them in a separate hierarchy. It makes it easier to exclude from version control and easier to clean.
+* If thrift doesn't clean the output directory before running, you can make your thrift task clean the outputs first.
+</blockquote>
+
+Mark suggests that we could refactor the above as:
+
+{% highlight scala %}
+def javaDirectoryPath = "src_managed" / "main" / "java"
+def rubyDirectoryPath = "src_managed" / "main" / "ruby"
+def thriftDirectoryPath = "src_managed" / "main" / "thrift"
+def thriftFile = thriftDirectoryPath / "YourThriftDealie.thrift"
+
+def thriftTask(tpe: String, directory: Path, thriftFile: Path) = {
+  val cleanIt = cleanTask(directory) named("clean-thrift-" + tpe)
+  execTask {
+        // you can do "thrift ...".format and pass a String here instead of inline xml
+	<x>thrift --gen {tpe} {directory.absolutePath} {thriftFile.absolutePath}</x>
+  } dependsOn(cleanIt)
+}
+
+lazy val thriftJava = thriftTask("java", javaDirectoryPath, thriftFile) describedAs("Build Thift Java")
+lazy val thriftRuby = thriftTask("ruby", rubyDirectoryPath, thriftFile) describedAs("Build Thrift Ruby")
+
+override def compileAction = super.compileAction dependsOn(thriftJava, thriftRuby)
+{% endhighlight %}
+
+This assumes that the order of Thrift complication between Java and Ruby doesn't matter (which, in our case, it doesn't). Thanks, Mark!

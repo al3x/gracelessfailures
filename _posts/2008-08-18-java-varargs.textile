@@ -1,0 +1,48 @@
+---
+layout: post
+title: "Invoking Java varargs Methods with Scala"
+author: Tom Adams
+---
+
+h1. {{ page.title }}
+
+A quick little example of invoking a Java varags method from Scala. Suppose you've code like the following:
+
+{% highlight scala %}
+object MyApplication {
+  private lazy val javaApi = new JavaApi
+
+  def main(args: Array[String]) {
+    val numbers = Array(1, 2, 3)
+    javaApi.methodWithVarArgs(numbers)
+  }
+}
+{% endhighlight %}
+
+This will generate a nice error message telling you exactly what to do:
+
+<pre>
+.../MyApplication.scala:6: warning: I'm seeing an array passed into a Java vararg.
+I assume that the elements of this array should be passed as individual arguments to the vararg.
+Therefore I wrap the array in a `: _*', to mark it as a vararg argument.
+If that's not what you want, compile this file with option -Xno-varargs-conversion.
+    javaApi.methodWithVarArgs(numbers)
+                              ^
+one warning found
+Compile succeeded with 1 warning; see the compiler output for details.
+</pre>
+
+What this is telling you is that you need to help the inferencer by type annotating the argument:
+
+{% highlight scala %}
+object MyApplication {
+  private lazy val javaApi = new JavaApi
+
+  def main(args: Array[String]) {
+    val numbers = Array(1, 2, 3)
+    javaApi.methodWithVarArgs(numbers: _*)
+  }
+}
+{% endhighlight %}
+
+Nice one! Type annotating is something you'll get used to doing with Scala...

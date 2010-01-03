@@ -1,0 +1,26 @@
+---
+layout: post
+title: "Class What?"
+author: Robey Pointer
+---
+
+h1. {{ page.title }}
+
+I'm a little annoyed that this doesn't work:
+
+{% highlight scala %}
+scala> class Foo
+defined class Foo
+
+scala> object Thing extends Foo
+defined module Thing
+
+scala> val set = scala.collection.immutable.Set[Class[_ <: Foo]](Thing.getClass)
+<console>:6: error: type mismatch;
+ found   : java.lang.Class[?0] where type ?0
+ required: Class[_$1] forSome { type _$1 <: Foo }
+       val set = scala.collection.immutable.Set[Class[_ <: Foo]](Thing.getClass)
+                                                                       ^
+{% endhighlight %}
+
+I'm sure it's probably a java compatibility thing, but shouldn't the class of an object of type T return a class of type Class[T]?

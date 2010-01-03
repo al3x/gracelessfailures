@@ -1,0 +1,13 @@
+---
+layout: post
+title: "Parser Surprise"
+author: David Vydra
+---
+
+h1. {{ page.title }}
+
+<tt>1.toString</tt> works fine.
+
+<tt>-1.toString</tt> says: <tt>error: ';' expected but '.' found</tt>
+
+Need to use <tt>(-1).toString</tt>.

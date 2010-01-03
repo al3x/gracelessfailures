@@ -1,0 +1,37 @@
+---
+layout: post
+title: "Accumulation"
+author: David Pollak
+---
+
+h1. {{ page.title }}
+
+It's a pretty common operation to take a list of stuff and accumulate the items. For example, if I have a collection of word frequencies and I want to aggregate the counts by word.
+
+The "Java" imperative way of doing this is to create a HashMap of stuff and populating the HashMap. For example (this is Java-style Scala code):
+
+{% highlight scala %}
+def accumulate(in: Seq[(String, Int)]): Seq[(String, Int)] = {
+  val map = new HashMap[String, Int]
+
+  for ((str, cnt) <- in) {
+    if (map.isDefinedAt(str)) map(str) = map(str) + cnt
+    else map(str) = cnt
+  }
+
+  map.toList
+}
+{% endhighlight %}
+
+What are we doing? We're creating some state and iteratively updating the state.
+
+My preferred way of doing this is thinking about the issue as "transformative". We're transforming the input to the output, without mutating anything.
+
+{% highlight scala %}
+def acc(in: Seq[(String, Int)]): Seq[(String, Int)] =
+  in.foldLeft[Map[String, Int]](Map.empty){
+    case (map, (str, cnt)) => map + (str -> (map.getOrElse(str, 0) + cnt))
+  }.toList
+{% endhighlight %}
+
+The transformative approach is shorter and I believe, sweeter.

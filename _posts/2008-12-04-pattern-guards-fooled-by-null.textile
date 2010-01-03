@@ -1,0 +1,81 @@
+---
+layout: post
+title: "Pattern Guards Fooled By null"
+author: John Kalucki
+---
+
+h1. {{ page.title }}
+
+A sadness:
+
+Pattern guards don't handle nulls well, and, also, introducing a pattern guard appears to make a default _ not match on null values:
+
+{% highlight scala %}
+scala> def guard_fails(s: String) {
+| s match {
+| case s: String if s == null => println("null")
+| case s: String if s != null => println("s=" + s)
+| case _ => println("default")
+| }
+| }
+guard_fails: (String)Unit
+
+scala> guard_fails("test")
+s=test
+
+scala> guard_fails(null)
+scala.MatchError
+at .guard_fails(:5)
+at .(:6)
+at .()
+at RequestResult$.(:3)
+at RequestResult$.()
+at RequestResult$result()
+at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+at sun.reflect.DelegatingMeth...
+scala>
+
+scala> def guard_fails2(s: String) {
+| s match {
+| case s: String if s != null => println("s=" + s)
+| case _ => println("default")
+| }
+| }
+guard_fails2: (String)Unit
+
+scala> guard_fails2("test")
+s=test
+
+scala> guard_fails2(null)
+scala.MatchError
+at .guard_fails2(:5)
+at .(:6)
+at .()
+at RequestResult$.(:3)
+at RequestResult$.()
+at RequestResult$result()
+at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+at sun.reflect.DelegatingMet...
+scala>
+{% endhighlight %}
+
+To code this match defensively, you have to define a null pattern explicitly:
+
+{% highlight scala %}
+scala> def ok(s: String) {
+| s match {
+| case s: String if true => println("s=" + s)
+| case null => println("null")
+| case _ => println("default")
+| }
+| }
+ok: (String)Unit
+
+scala> ok("test")
+s=test
+
+scala> ok(null)
+null
+{% endhighlight %}

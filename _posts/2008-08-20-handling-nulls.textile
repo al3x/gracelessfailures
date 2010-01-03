@@ -1,0 +1,48 @@
+---
+layout: post
+title: "Handling nulls"
+author: Tom Adams
+---
+
+h1. {{ page.title }}
+
+There's been a bunch of posts about "handling":http://blog.lostlake.org/index.php?/archives/50-The-Scala-Option-class-and-how-lift-uses-it.html "nulls":http://www.codecommit.com/blog/scala/the-option-pattern in "Scala":http://debasishg.blogspot.com/2008/03/maybe-scala.html (and "even Java":http://blog.kriskemper.com/2008/08/19/there-more-to-consider-than-whether-to-return-null/), so let's throw one more into the mix.
+
+This morning, I've been writing some code to read test data from the filesystem, using resources. Following David's lead on showing Java-Scala code, here's a typical Java take on it, note that I need to handle the case of reading the file in IntelliJ differently than I do in the build (IntelliJ now places resources in a subdirectory per module):
+
+{% highlight scala %}
+def dataFile(path: String): FilePath = {
+  val resource = getResource(path)
+  if (resource == null) {
+    val intellijResource = getResource("furnace/" + path)
+    if (intellijResource == null) {
+      error("No resource found at '" + path + "' or 'furnace/" + path + "'")
+    } else {
+      intellijResource
+    }
+  } else {
+    resource
+  }
+}
+
+def getResource(path: String) = Foo.getClass.getResource(path)
+{% endhighlight %}
+
+Now, here's the code rewritten using Option for handling a null returned from getResource (apologies for formatting). I'm using "Scalaz's":http://wiki.workingmouse.com/index.php/Scalaz "OptionW":http://projects.workingmouse.com/public/scalaz/artifacts/latest/scaladoc/scalaz/OptionW$object.html, as it provides a nice (implicit) conversion from null to an Option (onull) and for throwing an error on None (err). As an aside, these would make a fine addition to the standard API.
+
+{% highlight scala %}
+def dataFile(path: String): FilePath = dataFileFromAntBuild(path)
+
+def dataFileFromAntBuild(path: String) = getResource(path).getOrElse(dataFileFromIntelliJ(path))
+
+def dataFileFromIntelliJ(path: String) = {
+  val intellijPath = "furnace" + path
+  onull(getResource(intellijPath)).err("No resource found at '" + path + "' or '" + intellijPath + "'")
+}
+
+def getResource(path: String) = Foo.getClass.getResource(path)
+{% endhighlight %}
+
+This code is nicer than the first as it explicitly shows that you're sequencing through the nullness and is much more concise (we could make it more concise too if we wish).
+
+For those still stuck in Javaland, there's always "Functional Java's":http://functionaljava.org/ "Option":http://projects.workingmouse.com/public/functionaljava/artifacts/2.12/javadoc/fj/data/Option.html to achieve a similar thing (though with more verbosity).

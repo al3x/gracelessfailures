@@ -1,0 +1,17 @@
+---
+layout: post
+title: "The Seductions of Scala, Part I"
+author: Tom Adams
+---
+
+h1. {{ page.title }}
+
+A nice introductory Scala post on Scala by Dean Wampler:
+
+<blockquote>
+However, I decided to learn Scala first, because it is a JVM language that combines object-oriented and functional programming in one language. At ~13 years of age, Java is a bit dated. Scala has the potential of replacing Java as the principle language of the JVM, an extraordinary piece of engineering that is arguably now more valuable than the language itself. (Note: there is also a .NET version of Scala under development.)
+
+Here are some of my observations, divided over three blog posts.
+</blockquote>
+
+Source: "The Seductions of Scala, Part I":http://blog.objectmentor.com/articles/2008/08/03/the-seductions-of-scala-part-i

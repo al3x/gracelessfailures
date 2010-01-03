@@ -1,0 +1,16 @@
+---
+layout: post
+title: "Bringin' It Back"
+---
+
+h1. {{ page.title }}
+
+It's been ages since any of the multiple contributors to this site posted anything. We're all busy folks, and some of us don't get to write Scala 100% of the time. Personally, my contributions to the site tapered off soon after I started working on "Programming Scala":http://programmingscala.com/ for O'Reilly. Once I wrapped up the book, my daily work was in Ruby for a while, which didn't leave me with much to post here.
+
+I'm now back writing Scala day-to-day, and so I figured I would resurrect this blog as a place to share the things I'm learning.
+
+I've imported all the previous content, although attribution to the various original authors and comments didn't make it over. You can still find the "full-fidelity archive":http://gracelessfailures.blogspot.com/ of the previous site.
+
+Also, you can follow this blog on Twitter: "@gracelessblog":http://twitter.com/gracelessblog.
+
+Welcome back!

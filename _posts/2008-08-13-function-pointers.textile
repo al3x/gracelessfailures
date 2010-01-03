@@ -1,0 +1,62 @@
+---
+layout: post
+title: "Function Pointers"
+author: John Kalucki
+---
+
+h1. {{ page.title }}
+
+Scala treats functions declared without a parameter list differently from those with a parameter list. It seems that
+
+{% highlight scala %}
+def f : Int = 1
+{% endhighlight %}
+
+isn't a first-class function, but
+
+{% highlight scala %}
+def fn(): Int = 2
+{% endhighlight %}
+
+is a first-class function. You cannot assign f to a value or pass it as a parameter. You can pass fn as a parameter trivially, but you need a bit of syntax to assign fn to a value.
+
+{% highlight scala %}
+class F {
+  def f: Int = 1
+  def fn(): Int = 2
+}
+
+class G {
+  def g(func: () => Int) : Int = func()
+  def yup: Int = g((new F).fn)
+  def yay: Int = {
+    val fn = () => (new F).fn()
+    g(fn)
+  }
+  //def nope1: Int = g((new F).f)
+  //def nope2: Int = {
+  //  val fn: () => Int = (new F).fn()
+  //  g(fn)
+  //}
+  //def nope3: Int = {
+  //  val fn = (new F).fn()
+  //  g(fn)
+  //}
+}
+{% endhighlight %}
+
+None of the nope functions will compile, as fn() is taken as an immediate that returns an Int, not as a function object. Even if you try to "cast" it to () => Int, as in nope2, the compiler still takes fn as an immediate. The yup function works without any fuss which, to this naif, appears at odds with nope2. Both seem to be "casts" of the same ilk. Mmm.
+
+Robey came up with the syntax in the function yay this afternoon. I arrived at the same place via a different path, by emulating how anonymous functions can be assigned to values. In polite company, I might say this is "idiomatic."
+
+So, to assign a previously defined parameterless function to a value, you must declare it as:
+
+{% highlight scala %}
+def fn(): Int = {...}
+{% endhighlight %}
+
+and assign it thus:
+
+{% highlight scala %}
+val function = () => fn()
+{% endhighlight %}

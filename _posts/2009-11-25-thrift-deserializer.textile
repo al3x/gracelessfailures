@@ -1,0 +1,29 @@
+---
+layout: post
+title: "A Generic Thrift Deserializer In Scala"
+---
+
+h1. {{ page.title }}
+
+So you've got a file full of binary serialized Thrift objects, delimited by the size of the serialized objects in bytes. Maybe that file is gzipped, and maybe it isn't. You *need* those objects. And wouldn't it be nice if the code was reusable? Check 'er out:
+
+<script src="http://gist.github.com/243161.js?file=ThriftFileScanner.scala"></script>
+
+How do you put it to use? Simple:
+
+{% highlight scala %}
+val scanner = new ThriftFileScanner[YourThriftClassName]
+scanner.allRecordsFromFile("/tmp/dump.thrift.gz") { println(_) }
+{% endhighlight %}
+
+Yup, you just hand it the path to a file and a block. As each record is deserialized, it's handed to your block.
+
+Notes:
+
+1. <strike>If the file o' serialized Thrift objects is big enough, you might exhaust your JVM's heap space. This seems to happen more frequently with gzipped files.</strike> _Update, Tuesday, December 1, 2009_: We've sorted this out. We weren't wrapping the GZIPInputStream correctly, but all is well now, even for big honkin' files. The Gist has been updated, and we fixed a couple other bugs and removed some unnecessary junk while we were at it.
+
+2. Check out the use of manifests and type bounds. What we're saying in the class definition is "t his class accepts any subclass of TBase, and we're referring to whatever that is as T, and we're going to stick in formation about T into a variable called 'man' at runtime." T is a placeholder, and manifests give us information about what ends up in that place.
+
+Later on, we create a new instance of whatever T might be (in the above example, it's YourThriftClassName) by calling the erasure method on man, which gives us back the class of T. Runtime reflection while remaining type safe. Cool. This is the first example I've seen that uses both manifests for genericity and higher-order functions. Not that doing so is particularly difficult, it just doesn't seem to have come up elsewhere.
+
+So! Go forth and deserialize, friends.

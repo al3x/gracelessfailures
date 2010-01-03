@@ -1,0 +1,32 @@
+---
+layout: post
+title: "Add A Remote In-Process REPL To Your Scala Project"
+---
+
+h1. {{ page.title }}
+
+For a service I'm currently working on, we thought it would be handy to enable remote debugging via a REPL. There's a couple of different ways to go about this.
+
+One strategy would be to leverage our build tool, sbt, which has a "console" action. This action "[s]tarts the Scala interpreter with the project classes on the classpath", according to its description. One could SSH into the machine the service is running on, hop over to the directory it lives in, run "sbt console", and you're set. Except that, of course, you're just firing up a secondary instance of the application/service. For a memory-intensive process, this may not be an option.
+
+I looked into other strategies. The one that seemed to make the most sense was to take advantage of scala.tools.nsc.InterpreterLoop. When you fire up Scala on the command line, this is what you're interacting with. Can't we just wire it up to some network I/O and "broadcast" that same console experience on a socket?
+
+As it turns out, we can, in a portable way, and in less than 100 lines of code. Check it out:
+
+<script src="http://gist.github.com/241575.js?file=RemoteDebug.scala"></script>u
+
+To make use of this in your Scala project, just create an instance of RemoteDebugServer and hand it a port number. Be sure, of course, that you're not exposing that port to the outside world. What happens inside the firewall stays inside the firewall.
+
+Some notes about the implementation:
+
+1. It uses Actors and basic Java networking to accomplish its I/O goals, but you could use whatever approach you like there. As long as you can coerce your input and output to a BufferedReader and PrintWriter, respectively, the InterpreterLoop is happy.
+
+2. We have to fake out the classpath because I couldn't figure out a sane way to discover it from the parent thread. Getting it via system properties didn't work. This could be because the JAR in which this application is packaged has one of those fancy manifests of its dependent jars. When you ask for System.getProperty("env.classpath"), you just get the JAR of the application itself. Wiggy.
+
+3. We use the logging fanciness that comes with Configgy, but you can swap that out for the logging library of your choice (if you want something that's less awesome, for whatever reason).
+
+4. The console in Scala 2.7.x is already a bit limited compared to something like irb. It doesn't do syntax highlighting, tab completion, etc. You'll find that interacting with it over telnet is even more limited. You wouldn't want to do more with this than run a couple of quick commands.
+
+Finally, a major caveat: when you connect to the remote REPL, you're both running in-process and kind of not. That is to say, if you call System.exit, you'll cause the process the exit, and you can do other similarly bad/dumb things. But the scope in which this REPL runs isn't global, in the sense of connecting to a remote Lisp REPL or the like. You won't be able to interact with every object without some serious digging. It's mostly useful for printing out stats and debugging information from "inside the house", as it were.
+
+Enjoy, and please contribute any improvements to the Gist above. If you've never used Gist, it's not just a place to paste code. Every Gist is its own Git repository, and you can fork to your heart's content.

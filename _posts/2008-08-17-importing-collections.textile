@@ -1,0 +1,24 @@
+---
+layout: post
+title: "Importing Collections"
+author: Robey Pointer
+---
+
+h1. {{ page.title }}
+
+I'd like to propose the following convention when importing classes from Scala's collection library:
+
+If you're using more than one class from the collections library, or might, import the packages themselves, like so:
+
+{% highlight scala %}
+import scala.collection.immutable
+import scala.collection.mutable
+{% endhighlight %}
+
+They can then be unambiguously used throughout:
+
+{% highlight scala %}
+val cache = new mutable.HashMap[String, String]
+{% endhighlight %}
+
+What say ye?

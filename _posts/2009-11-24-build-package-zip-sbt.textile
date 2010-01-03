@@ -1,0 +1,56 @@
+---
+layout: post
+title: "Build, Package, and Zip Up A Project With sbt"
+---
+
+h1. {{ page.title }}
+
+By request, I'm sharing a more of the sbt incantations that "@stevej":http://saladwithsteve.com/ and I came up with last week when moving a project over from Ant/Ivy. We follow a pretty traditional Java packaging structure. Replicating that took a fair bit of experimentation, but we got it all working. This is what we ended up with in our sbt build file:
+
+{% highlight scala %}
+override def mainClass = Some("com.yourcompany.yourproject.Main")
+
+/**
+ * In the classpath:
+ *  - all dependencies (via Ivy/Maven and in lib)
+ *  - package classes
+ * On the filesystem:
+ *  - scripts
+ *  - config
+ */
+def distPath = (
+  // NOTE the double hashes (##) hoist the files in the preceeding directory
+  // to the top level - putting them in the "base directory" in sbt's terminology
+  ((outputPath ##) / defaultJarName) +++
+  mainResources +++
+  mainDependencies.scalaJars +++
+  descendents(info.projectPath, "*.sh") +++
+  descendents(info.projectPath, "*.rb") +++
+  descendents(info.projectPath, "*.conf") +++
+  descendents(info.projectPath / "lib" ##, "*.jar") +++
+  descendents(managedDependencyRootPath / "compile" ##, "*.jar")
+)
+
+// creates a sane classpath including all JARs and populates the manifest with it
+override def manifestClassPath = Some(
+  distPath.getFiles
+  .filter(_.getName.endsWith(".jar"))
+  .map(_.getName).mkString(" ")
+)
+
+def distName = "yourproject-%s.zip".format(version)
+
+lazy val zip = zipTask(distPath, "dist", distName) dependsOn (`package`) describedAs("Zips up the project.")
+{% endhighlight %}
+
+Some notes:
+
+1. The file/path management stuff in sbt is <strike>a bit under-documented</strike> "actually pretty well documented":http://code.google.com/p/simple-build-tool/wiki/Paths. We had to read a fair bit of source code to get the distPath built correctly. Particularly, "hoisting" files within the project tree to the top of the resulting directory was a bit of a trick.
+
+2. Building a manifest that ends up in the resulting JAR for the project isn't that hard: just pull together all the dependent JARs.
+
+3. Our configuration includes a bunch of Ruby (generated Thrift code), shell scripts, and Configgy configuration files. You may not want to include these things, or even have them in your project.
+
+4. You can swap out ZipTask for another compression format. I'd still suggest making your zip action dependent on packaging, which in turn will handle compilation.
+
+Enjoy!
