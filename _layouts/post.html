@@ -5,8 +5,8 @@ layout: default
 {{ content }}
 <time class="signoff" datetime="{{ page.date | date: "%Y-%m-%d" }}">
   &mdash;
-  {% if post.author %}
-    <em>{{ post.author }}</em>,
+  {% if page.author %}
+    <em>{{ page.author }}</em>,
   {% else %}
     <em>Alex Payne</em>,
   {% endif %}
