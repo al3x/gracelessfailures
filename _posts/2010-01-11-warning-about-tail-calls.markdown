@@ -1,0 +1,48 @@
+---
+layout: post
+title: "Warning About Tail Calls"
+author: Robey Pointer
+---
+
+We ran into a scary case last week where a code change could reliably make the JVM (1.6) segfault
+every 3-4 hours. At first, I thought it might be a "cosmic ray" kind of phenomenon, like a
+particular alignment of the bytecode or some edge case in the scala (2.7.7) compiler, but as we
+started rolling back the code to triage, it was clear that some particular piece of code was
+reliably causing the segfault. Code bisection pinned it down to a tail-call recursion:
+
+    def foreach(blocking: Boolean, f: Job => Unit) {
+      val continue = {
+        getJob(blocking) match {
+          case None =>
+            false
+          case Some(job) =>
+            f(job)
+            true
+        }
+      }
+      if (continue) {
+        foreach(blocking, f)
+      }
+    }
+
+(The code is simplified a bit for clarity.) The tail-call recursion is pulled out of any potential
+block because otherwise the recursive call may be nested inside an inner class, which would prevent
+scalac from being able to create a tail-call. But it doesn't seem to have helped, because a dump of
+the compiled bytecode shows that scalac failed to create a tail-call anyway:
+
+    186:	iload_3
+    187:	ifeq	196
+    190:	aload_0
+    191:	iload_1
+    192:	aload_2
+    193:	invokevirtual	#245; //Method foreach:(ZLscala/Function1;)V
+    196:	return
+
+Translation: If local-3 (`continue`) is false, return; otherwise, do a normal java recursive call.
+Possibly the JVM doesn't correctly catch a stack overflow inside java (?) and the segfault was just
+the java thread running out of stack space for recursion.
+
+For now, I would recommend avoiding tail calls. It's very tricky to figure out when scalac will be
+able to avoid actual java-stack recursion. Apparently scala 2.8 will have an annotation you can add
+to methods to make the compiler warn you when it can't properly optimize the recursion into a tail
+call.
