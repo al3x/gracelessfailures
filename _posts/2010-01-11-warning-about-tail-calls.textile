@@ -10,35 +10,42 @@ particular alignment of the bytecode or some edge case in the scala (2.7.7) comp
 started rolling back the code to triage, it was clear that some particular piece of code was
 reliably causing the segfault. Code bisection pinned it down to a tail-call recursion:
 
-    def foreach(blocking: Boolean, f: Job => Unit) {
-      val continue = {
-        getJob(blocking) match {
-          case None =>
-            false
-          case Some(job) =>
-            f(job)
-            true
-        }
-      }
-      if (continue) {
-        foreach(blocking, f)
-      }
+{% highlight scala %}
+def foreach(blocking: Boolean, f: Job => Unit) {
+  val continue = {
+    getJob(blocking) match {
+      case None =>
+        false
+      case Some(job) =>
+        f(job)
+        true
     }
+  }
+  if (continue) {
+    foreach(blocking, f)
+  }
+}
+{% endhighlight %}
 
-(The code is simplified a bit for clarity.) The tail-call recursion is pulled out of any potential
+(The code is simplified a bit for clarity.)
+
+The tail-call recursion is pulled out of any potential
 block because otherwise the recursive call may be nested inside an inner class, which would prevent
 scalac from being able to create a tail-call. But it doesn't seem to have helped, because a dump of
 the compiled bytecode shows that scalac failed to create a tail-call anyway:
 
-    186:	iload_3
-    187:	ifeq	196
-    190:	aload_0
-    191:	iload_1
-    192:	aload_2
-    193:	invokevirtual	#245; //Method foreach:(ZLscala/Function1;)V
-    196:	return
+<pre>
+186:	iload_3
+187:	ifeq	196
+190:	aload_0
+191:	iload_1
+192:	aload_2
+193:	invokevirtual	#245; //Method foreach:(ZLscala/Function1;)V
+196:	return
+</pre>
 
-Translation: If local-3 (`continue`) is false, return; otherwise, do a normal java recursive call.
+Translation: If local-3 (<tt>continue</tt>) is false, return; otherwise, do a normal java recursive call.
+
 Possibly the JVM doesn't correctly catch a stack overflow inside java (?) and the segfault was just
 the java thread running out of stack space for recursion.
 
