@@ -4,6 +4,8 @@ title: "Warning About Tail Calls"
 author: Robey Pointer
 ---
 
+h1. {{ page.title }}
+
 We ran into a scary case last week where a code change could reliably make the JVM (1.6) segfault
 every 3-4 hours. At first, I thought it might be a "cosmic ray" kind of phenomenon, like a
 particular alignment of the bytecode or some edge case in the scala (2.7.7) compiler, but as we
