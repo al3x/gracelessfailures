@@ -1,0 +1,93 @@
+---
+layout: post
+title: "Propagating View Bounds to Traits"
+author: Marius A. Eriksen
+---
+
+h1. {{ page.title }}
+
+"View bounds":http://programming-scala.labs.oreilly.com/ch12.html#ViewsAndViewBounds provide the means by which to achieve ad-hoc polymorphism in Scala. One way to think of view bounds (these are also equivalent to "type classes":http://www.haskell.org/tutorial/classes.html in Haskell) is that they provide a sort-of run-time polymorphism. To review:
+
+{% highlight scala %}
+class A[T <% String] {
+  // Methods here can now operate operate treating any type `T' as
+  // `String'
+
+  def sayHey(x: T): String = "hey! " + (x:String)
+}
+{% endhighlight %}
+
+Here, you can only instantiate the class <tt>A</tt> with the type <tt>T</tt> if there is, _at the time of instantiation_ an implicit function available of type <tt>T => String</tt>.
+
+Note that the <tt><%</tt>-notation is syntactical sugar in Scala, making the previous example equivalent to:
+
+{% highlight scala %}
+class A[T](implicit tToString: (T => String)) {
+  // Methods here can now operate operate treating any type `T' as
+  // `String'
+
+  def sayHey(x: T): String = "hey! " + (x:String)
+}
+{% endhighlight %}
+
+However, view bounds break down when you introduce self-type annotated traits.
+
+{% highlight scala %}
+class A[T <% String] {
+  // Methods here can now operate operate treating any type `T' as
+  // `String'
+}
+
+trait SomeTrait[T] { self:A[T] =>
+  // this fails to compile:
+  def sayHey(x: T): String = "hey! " + (x:String)
+}
+{% endhighlight %}
+
+Even though we used a self-type annotation, the compiler doesn't make available the implicit function available in the "parent" class. The problem is the way the syntax-sugar works here. It binds the implicit to the lexical scope of the parent class.
+
+However, if we could change the implicit to be a <tt>val</tt> instead, we'd be set. This works:
+
+{% highlight scala %}
+class A[T](implicit val tToString: (T => String)) {
+  // Methods here can now operate operate treating any type `T' as
+  // `String'
+
+  def sayHey(x: T): String = "hey! " + (x:String)
+}
+
+trait SomeTrait[T] { self:A[T] =>
+  // this fails to compile:
+  def sayHey(x: T): String = "hey! " + (x:String)
+}
+{% endhighlight %}
+
+However, you forgo the succinctness of the view-bound notation, and it doesn't nest: adding another trait
+
+{% highlight scala %}
+trait SomeSubTrait[T] { self:SomeTrait[T] =>
+  // this fails to compile:
+  def sayHeyAgain(x: T): String = "hey again! " + (x:String)
+}
+{% endhighlight %}
+
+will again fail to compile.
+
+I ended up working around this by a simple trick (and, I think, a prettier solution to boot) by simply "exporting" the implicit definition.
+
+{% highlight scala %}
+class A[T <% String] {
+  // Methods here can now operate operate treating any type `T' as
+  // `String'
+
+  implicit def tToString(t: T): String = t
+  def sayHey(x: T): String = "hey! " + (x:String)
+}
+
+trait SomeTrait[T] { self:A[T] =>
+  // the implicit from `A' is now available here.
+  def sayHey(x: T): String = "hey! " + (x:String)
+}
+{% endhighlight %}
+
+This still does not nest by itself, but you can work around that by again re-exporting the implicit made available to the trait.
