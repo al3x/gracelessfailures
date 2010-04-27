@@ -91,3 +91,4 @@ trait SomeTrait[T] { self:A[T] =>
 {% endhighlight %}
 
 This still does not nest by itself, but you can work around that by again re-exporting the implicit made available to the trait.
+
